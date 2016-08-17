@@ -1,0 +1,151 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+
+# This file is part of ColobotSyntaxHighlighting, a package for Sublime Text 3.
+# Copyright (C) 2016  Mateusz Przybył
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+name: SatCom Help File
+file_extensions:
+  - satcom
+scope: text.satcom
+first_line_match: ^\\b;.*$
+contexts:
+  main:
+    - include: line-formatting
+    - include: inline-formatting
+    - include: image-begin
+  line-formatting:
+    - include: heading-begin
+    - include: special-line-formatting-begin
+  inline-formatting:
+    - include: escaped-char
+    - include: monospaced-begin
+    - include: special-inline-formatting-begin
+    - include: keyboard-key-begin
+    - include: button-icon-begin
+    - include: link-begin
+
+  # Image
+  image-begin:
+    - match: ^\\image\b
+      scope: variable.function.satcom
+      push: image-name
+  image-name:
+    - meta_content_scope: entity.name.filename.satcom
+    - match: \b\d+\b
+      set: image-size-first
+  image-size-first:
+    - meta_scope: variable.parameter.satcom
+    - match: \b\d+\b
+      set: image-size-second
+  image-size-second:
+    - meta_scope: variable.parameter.satcom
+    - match: ;$
+      scope: variable.function.satcom
+      pop: true
+
+  # Heading
+  heading-begin:
+    - match: ^\\(?:b|t);
+      scope: entity.name.satcom
+      push: heading
+  heading:
+    - meta_content_scope: string.satcom
+    - include: inline-formatting
+    - match: $
+      pop: true
+
+  # Special line formatting
+  special-line-formatting-begin:
+    - match: ^\\(?:s|tab);
+      scope: entity.name.satcom
+      push: special-line-formatting
+  special-line-formatting:
+    - meta_content_scope: string.satcom
+    - include: inline-formatting
+    - match: $
+      pop: true
+
+  # Escaped character
+  escaped-char:
+    - match: \\\\
+      scope: constant.character.escape.backslash.satcom
+
+  # Monospaced font
+  monospaced-begin:
+    - match: \\c;
+      scope: keyword.other.satcom
+      push: monospaced
+  monospaced:
+    - meta_content_scope: string.monospaced.satcom
+    - include: inline-formatting
+    - include: line-formatting
+    - match: \\n;
+      scope: keyword.other.satcom
+      pop: true
+
+  # Special inline formatting
+  special-inline-formatting-begin:
+    - match: \\(?:token|type|const|key);
+      scope: keyword.other.satcom
+      push: special-inline-formatting
+  special-inline-formatting:
+    - meta_content_scope: string.satcom
+    - include: inline-formatting
+    - match: \\norm;
+      scope: keyword.other.satcom
+      pop: true
+
+  # Keyboard key
+  keyboard-key-begin:
+    - match: \\key\b
+      push: keyboard-key
+  keyboard-key:
+    - meta_scope: constant.other.satcom
+    - match: |-
+        (?xi)\b(?:
+          Left|Right|Up|Down|
+          Gup|Gdown|
+          Camera|Desel|Action|Near|Away|Next|Human|Quit|Help|Prog|Cbot|Visit|
+          speed10|speed15|speed20
+        );
+      pop: true
+
+  # Button
+  button-icon-begin:
+    - match: \\button\b
+      push: button-icon
+  button-icon:
+    - meta_scope: constant.numeric.satcom
+    - match: \b\d+;
+      pop: true
+
+  # Link
+  link-begin:
+    - match: \\l;
+      scope: variable.function.satcom
+      push: link-name
+  link-name:
+    - meta_content_scope: variable.parameter.satcom
+    - match: \\u\b
+      scope: variable.function.satcom
+      set: link-url
+  link-url:
+    - meta_content_scope: entity.name.filename.satcom
+    - match: ;
+      scope: variable.function.satcom
+      pop: true

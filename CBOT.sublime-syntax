@@ -1,0 +1,185 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+
+# This file is part of ColobotSyntaxHighlighting, a package for Sublime Text 3.
+# Copyright (C) 2016  Mateusz Przybył
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+name: CBOT
+file_extensions:
+  - cbot
+scope: source.cbot
+variables:
+  ident: '[A-Za-z_][A-Za-z_0-9]*'
+first_line_match: ^\s*extern\s+void\s+object::[A-Za-z_][A-Za-z_0-9]*\s*\(\s*\)\s*$
+contexts:
+  main:
+    - include: inline-comment-begin
+    - include: block-comment-begin
+    - include: string-begin
+
+    - include: type
+    - include: keyword
+    - include: instruction
+    - include: constant
+    
+    - include: operator
+    - include: number
+
+  instruction:
+    - match: |-
+        (?x)\b(?:
+          sin|cos|tan|asin|acos|atan|atan2|
+          sqrt|pow|rand|abs|floor|ceil|round|trunc|
+          retobject|errmode|busy|takeoff|research|factory|destroy|search|radar|
+          direction|distance|distance2d|space|flatspace|flatground|
+          canbuild|canresearch|researched|buildingenabled|build|
+          wait|move|turn|goto|grab|drop|
+          sniff|receive|send|deleteinfo|testinfo|
+          thump|recycle|shield|fire|antfire|aim|motor|jet|
+          topo|message|abstime|
+          strlen|strleft|strright|strmid|strval|strfind|strlower|strupper|
+          open|close|writeln|readln|eof|deletefile|openfile|
+          pendown|penup|pencolor|penwidth|
+          retobjectbyid|ismovie|ipf|camerafocus
+        )\b
+      scope: entity.name.function.cbot
+
+  keyword:
+    - match: |-
+        (?x)\b(?:
+          if|else|for|while|do|break|continue|return|sizeof|
+          extern|class|static|public|private|synchronized|new|this|
+          switch|case|default
+        )\b
+      scope: keyword.cbot
+
+  constant:
+    - match: |-
+        (?x)\b(?:
+          (?# Language keywords)
+            true|false|null|nan| 
+          (?# Buildings)
+            Portico|SpaceShip|
+            Derrick|Converter|
+            (?# Buildable by player)
+              Build(
+                Derrick|Converter|
+                (Nuclear|Power)Plant|
+                BotFactory|PowerStation|RepairCenter|
+                ResearchCenter|AutoLab|
+                Destroyer|DefenseTower|PowerCaptor|
+                RadarStation|ExchangePost
+              )|
+            Vault|Houston|Target(1|2)|(Start|Goal)Area|Barrier|
+            AlienNest|
+          (?# Resources)
+            Titanium(Ore)?|UraniumOre|
+            (Power|Nuclear)Cell|
+          (?# Gameplay objects)
+            OrgaMatter|BlackBox|Key(A|B|C|D)|TNT|Scrap|Mine|
+            (Blue|Red|Green|Yellow|Violet)Flag|
+            (Power|Titanium|Uranium|Key(A|B|C|D))Spot|
+            WayPoint|
+          (?# Robots)
+            PracticeBot|TargetBot|Scribbler|
+            (Wheeled|Tracked|Winged|Legged)(Grabber|Shooter|OrgaShooter|Sniffer)|
+            PhazerShooter|Thumper|Recycler|Shielder|Subber|
+          (?# Aliens)
+            Me|
+            Alien(Queen|Egg|Ant|Spider|Wasp|Worm)|
+          (?# Other object-related)
+            Wreck|FuelCell(Plant)?|Platinum(Ore|Spot)|
+          (?# Grab/drop positions)
+            InFront|Behind|EnergyCell|
+          (?# Message types)
+            Display(Error|Warning|Info|Message)|
+          (?# Radar filters)
+            Filter(None|OnlyLanding|OnlyFlying|Friendly|Enemy|Neutral)|Any|
+          (?# Damage types)
+            Explosion(None|Bang|Burn|Water)|
+          (?# Statuses)
+            Result(NotEnded|Lost|LostQuick|Win)|
+          (?# Other)
+            FlatGround|UseFlags|
+          (?# Research types)
+            Research(
+              Tracked|Winged|Legged|
+              (Orga|Phazer)Shooter|
+              Thumper|Shielder|Recycler|Subber|Sniffer|
+              DefenseTower|NuclearPlant|
+            )|
+          (?# Easter eggs)
+            PolskiPortalColobota|
+        )\b
+      scope: constant.language.cbot
+
+  type:
+    - match: |-
+        (?x)\b(?:
+          void|int|float|bool(ean)?|string|point|object|file
+        )\b
+      scope: storage.type.cbot
+
+  number:
+    - match: \b(?:[-+]?[0-9]*\.?[0-9]+|0x[0-9A-Fa-f]+)\b
+      scope: constant.numeric.cbot
+
+  operator:
+    - match: |-
+        (?x)(?:
+          \?|:|
+          ==|!=|<=|>=|<>|<|>|
+          =|
+          \-\-|\+\+|
+          \-|\+|\*|/|%|
+          !|&&|\|\||
+          (?<=[A-Za-z_0-9])\.(?=[A-Za-z_])| (?# Dereference)
+          ;|,|
+          or|and|not|
+          \||&|^|>>|<<
+        )
+      scope: keyword.operator.cbot
+
+  string-begin:
+    - match: '"'
+      push: string
+  string:
+    - meta_scope: string.cbot
+    - include: escaped-char
+    - include: string-variables
+    - match: '"'
+      pop: true
+
+  escaped-char:
+    - match: \\.
+      scope: constant.character.cbot
+
+  inline-comment-begin:
+    - match: //
+      push: inline-comment
+  inline-comment:
+    - meta_scope: comment.cbot
+    - match: $
+      pop: true
+
+  block-comment-begin:
+    - match: /\*
+      push: block-comment
+  block-comment:
+    - meta_scope: comment.cbot
+    - match: \*/
+      pop: true
