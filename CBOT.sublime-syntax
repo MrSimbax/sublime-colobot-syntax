@@ -149,7 +149,7 @@ contexts:
           !|&&|\|\||
           (?<=[A-Za-z_0-9])\.(?=[A-Za-z_])| (?# Dereference)
           ;|,|
-          or|and|not|
+          \b(or|and|not)\b|
           \||&|^|>>|<<
         )
       scope: keyword.operator.cbot
